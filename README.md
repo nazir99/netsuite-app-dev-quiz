@@ -1,10 +1,10 @@
-# NetSuite Application Developer — Practice Quiz
+# NetSuite Application Developer — Practice Quiz + Study Notes
 
-Interactive, phone-friendly prep for the **NetSuite Certified Application Developer** exam
-(60 questions / 90 min, live-proctored). 90 practice questions across all five subject areas:
-SuiteScript 2.1, SuiteFlow, SuiteBuilder, SDF, Performance & Security.
+Prep for the **NetSuite Certified Application Developer** exam (60 Q / 90 min, live-proctored).
 
-**Live quiz:** open `index.html` via GitHub Pages on any device — tap to answer, instant
-scoring, and every option explains why it's right or wrong.
-
-Study notes live in the user's Obsidian vault (`doing/knowledge-base/NetSuite App Developer/`).
+- **`index.html`** — interactive quiz, **150 questions** across all five subject areas
+  (SuiteScript 2.1, SuiteFlow, SuiteBuilder, SDF, Performance & Security). Tap to answer,
+  instant scoring, and every option explains why it's right or wrong.
+  Live: https://nazir99.github.io/netsuite-app-dev-quiz/
+- **`notes/`** — the seven story-driven study notes + two 60-question banks (Markdown),
+  so the material is referenceable from any tool.
