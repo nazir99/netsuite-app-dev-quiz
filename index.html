@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>NetSuite App Dev — Practice Quiz</title>
+<style>
+  :root{
+    --ground:#F4F6F8; --surface:#FFFFFF; --surface-2:#EEF1F5;
+    --ink:#1A2433; --muted:#5D6B7E; --line:#DFE4EA;
+    --accent:#B26B00; --accent-soft:#F3E4CB;
+    --good:#1E7A46; --good-soft:#DCEFE3; --bad:#C0392B; --bad-soft:#F6E0DD;
+    --radius:14px; --maxw:640px;
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#0F1620; --surface:#17202B; --surface-2:#1E2833;
+      --ink:#E7ECF2; --muted:#95A2B1; --line:#26313D;
+      --accent:#E6A24A; --accent-soft:#3A2E1C;
+      --good:#4BB37B; --good-soft:#16301F; --bad:#E5695F; --bad-soft:#331B18;
+    }
+  }
+  :root[data-theme="light"]{
+    --ground:#F4F6F8; --surface:#FFFFFF; --surface-2:#EEF1F5;
+    --ink:#1A2433; --muted:#5D6B7E; --line:#DFE4EA;
+    --accent:#B26B00; --accent-soft:#F3E4CB;
+    --good:#1E7A46; --good-soft:#DCEFE3; --bad:#C0392B; --bad-soft:#F6E0DD;
+  }
+  :root[data-theme="dark"]{
+    --ground:#0F1620; --surface:#17202B; --surface-2:#1E2833;
+    --ink:#E7ECF2; --muted:#95A2B1; --line:#26313D;
+    --accent:#E6A24A; --accent-soft:#3A2E1C;
+    --good:#4BB37B; --good-soft:#16301F; --bad:#E5695F; --bad-soft:#331B18;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);
+    line-height:1.5;-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 16px 104px}
+  header{position:sticky;top:0;z-index:5;background:var(--ground);
+    border-bottom:1px solid var(--line);padding:12px 0 10px}
+  .bar{max-width:var(--maxw);margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:12px}
+  .brand{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .brand b{color:var(--accent)}
+  .stat{margin-left:auto;font-family:var(--mono);font-size:13px;font-variant-numeric:tabular-nums;color:var(--ink)}
+  .stat span{color:var(--muted)}
+  .track{height:4px;background:var(--surface-2);border-radius:99px;margin-top:10px;overflow:hidden}
+  .fill{height:100%;width:0;background:var(--accent);transition:width .3s ease}
+  .hero{padding:28px 0 8px}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+  h1{font-size:clamp(26px,7vw,34px);line-height:1.12;margin:0 0 10px;letter-spacing:-.02em;text-wrap:balance;font-weight:800}
+  .lede{color:var(--muted);margin:0 0 22px;max-width:52ch}
+  .pick{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:22px 0 10px}
+  .sections{display:flex;flex-direction:column;gap:10px}
+  .sec{display:flex;align-items:center;gap:14px;width:100%;text-align:left;cursor:pointer;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:15px 16px;color:inherit;font:inherit;transition:border-color .15s,transform .05s}
+  .sec:hover{border-color:var(--accent)}
+  .sec:active{transform:translateY(1px)}
+  .sec .n{font-family:var(--mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:44px}
+  .sec .t{font-weight:650}
+  .sec .d{color:var(--muted);font-size:13px;margin-top:2px}
+  .sec .go{margin-left:auto;color:var(--accent);font-size:20px;line-height:1}
+  .opts-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+  .toggle{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;color:var(--muted);cursor:pointer;user-select:none}
+  .toggle input{accent-color:var(--accent);width:16px;height:16px}
+  .qtag{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);
+    display:inline-block;margin:20px 0 12px;padding:3px 8px;background:var(--accent-soft);border-radius:99px}
+  .q{font-size:19px;font-weight:650;margin:0 0 18px;line-height:1.35;text-wrap:pretty}
+  .q code,.opt code,.why code,.explain code{font-family:var(--mono);font-size:.88em;background:var(--surface-2);padding:1px 5px;border-radius:5px}
+  .choices{display:flex;flex-direction:column;gap:10px}
+  .choice{display:flex;align-items:flex-start;gap:12px;text-align:left;width:100%;
+    background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);
+    padding:14px 15px;color:inherit;font:inherit;cursor:pointer;line-height:1.4;
+    transition:border-color .12s,background .12s}
+  .choice:hover:not(:disabled){border-color:var(--accent)}
+  .choice:active:not(:disabled){transform:translateY(1px)}
+  .choice .key{font-family:var(--mono);font-weight:700;color:var(--muted);min-width:16px;padding-top:1px}
+  .choice .body{flex:1}
+  .choice.sel{border-color:var(--accent);background:var(--accent-soft)}
+  .choice.correct{border-color:var(--good);background:var(--good-soft)}
+  .choice.correct .key{color:var(--good)}
+  .choice.wrong{border-color:var(--bad);background:var(--bad-soft)}
+  .choice.wrong .key{color:var(--bad)}
+  .choice:disabled{cursor:default}
+  .why{display:none;font-size:13px;line-height:1.45;margin-top:7px;color:var(--muted)}
+  .why b{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+  .choice.wrong .why b{color:var(--bad)}
+  .choice.correct .why b{color:var(--good)}
+  .choice.revealed .why{display:block}
+  .mark{margin-left:10px;font-weight:700;font-family:var(--mono)}
+  .mark.g{color:var(--good)}.mark.b{color:var(--bad)}
+  .explain{margin-top:16px;padding:14px 15px;border-left:3px solid var(--accent);
+    background:var(--surface);border-radius:0 var(--radius) var(--radius) 0;font-size:15px}
+  .explain b{color:var(--accent)}
+  .hint{font-family:var(--mono);font-size:12px;color:var(--muted);margin:14px 0 0}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-family:var(--sans);
+    font-weight:650;font-size:15px;cursor:pointer;border-radius:11px;padding:13px 20px;border:1.5px solid transparent}
+  .btn-primary{background:var(--accent);color:#fff;width:100%}
+  .btn-primary:active{filter:brightness(.94)}
+  .btn-ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+  .actions{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(transparent,var(--ground) 28%);padding:20px 16px 22px}
+  .actions .inner{max-width:var(--maxw);margin:0 auto;display:flex;gap:10px}
+  .actions .inner .btn-primary{flex:1}
+  .score-big{font-family:var(--mono);font-size:56px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1;margin:6px 0}
+  .score-sub{color:var(--muted);margin:0 0 4px}
+  .verdict{font-weight:700;font-size:18px;margin:18px 0 4px}
+  .miss{border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);padding:13px 15px;margin-top:10px}
+  .miss .mq{font-weight:600;font-size:15px}
+  .miss .ma{font-family:var(--mono);font-size:13px;color:var(--muted);margin-top:6px}
+  .miss .ma b{color:var(--good)}
+  .foot{color:var(--muted);font-size:12px;font-family:var(--mono);text-align:center;margin-top:34px;letter-spacing:.04em}
+  .hidden{display:none!important}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header>
+  <div class="bar">
+    <div class="brand"><b>NAD</b> · App Developer Prep</div>
+    <div class="stat" id="stat"></div>
+  </div>
+  <div class="track" id="track" style="display:none"><div class="fill" id="fill"></div></div>
+</header>
+
+<div class="wrap">
+  <section id="start">
+    <div class="hero">
+      <p class="kicker">NetSuite Certified · 60 Q / 90 min</p>
+      <h1>Application Developer<br>practice deck</h1>
+      <p class="lede">90 questions across the five exam areas, weighted the way the real test is. Tap an answer — every option explains itself, right and wrong. Review what you miss at the end.</p>
+    </div>
+    <p class="pick">Choose a set</p>
+    <div class="sections" id="sections"></div>
+    <div class="opts-row">
+      <label class="toggle"><input type="checkbox" id="shuffle" checked> Shuffle questions</label>
+    </div>
+  </section>
+
+  <section id="quiz" class="hidden">
+    <div class="qtag" id="qtag"></div>
+    <p class="q" id="qtext"></p>
+    <div class="choices" id="choices"></div>
+    <p class="hint" id="hint"></p>
+    <div class="explain hidden" id="explain"></div>
+  </section>
+
+  <section id="results" class="hidden">
+    <p class="kicker">Run complete</p>
+    <div class="score-big" id="scoreBig"></div>
+    <p class="score-sub" id="scoreSub"></p>
+    <p class="verdict" id="verdict"></p>
+    <div id="misses"></div>
+    <p class="foot">Log your misses in <b>NAD - Review Log</b> · you've got this.</p>
+  </section>
+</div>
+
+<div class="actions hidden" id="actQuiz">
+  <div class="inner">
+    <button class="btn btn-ghost" id="quitBtn">Quit</button>
+    <button class="btn btn-primary" id="nextBtn">Check</button>
+  </div>
+</div>
+<div class="actions hidden" id="actDone">
+  <div class="inner"><button class="btn btn-primary" id="restartBtn">Back to sections</button></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+// a = correct indices. e = summary. w = per-option "why" (correct→why-right, wrong→why-wrong). "" = no note.
+var Q=[
+{s:"SuiteScript 2.1",q:"Which script type uses the <code>onRequest</code> entry point?",o:["RESTlet","Suitelet","Portlet","Scheduled"],a:[1],e:"Suitelets handle HTTP requests via <code>onRequest(context)</code>.",w:["RESTlets use get/post/put/delete, not onRequest.","Correct — the Suitelet entry point.","Portlets render dashboard content via render(context).","Scheduled scripts run through execute(context)."]},
+{s:"SuiteScript 2.1",q:"What are the RESTlet entry points?",o:["onRequest","get / post / put / delete","execute","render"],a:[1],e:"RESTlets expose one function per HTTP verb.",w:["onRequest belongs to Suitelets.","Correct — one handler per HTTP method.","execute is the Scheduled-script entry point.","render is the Portlet entry point."]},
+{s:"SuiteScript 2.1",q:"Which entry point does a Scheduled script use?",o:["execute","onAction","each","onRequest"],a:[0],e:"Scheduled scripts run through <code>execute(context)</code>.",w:["Correct.","onAction is the Workflow Action Script entry point.","each is used by Mass Update scripts.","onRequest belongs to Suitelets."]},
+{s:"SuiteScript 2.1",q:"Map/Reduce stages, in order?",o:["map → reduce → getInputData → summarize","getInputData → map → reduce → summarize","getInputData → reduce → map → summarize","map → getInputData → summarize → reduce"],a:[1],e:"getInputData → map → reduce → summarize.",w:["getInputData must run first — it feeds map.","Correct.","reduce can't precede map; map groups the keys reduce consumes.","getInputData is always first, summarize always last."]},
+{s:"SuiteScript 2.1",q:"Which JSDoc tag declares the script type?",o:["@NApiVersion","@NModuleScope","@NScriptType","@NAmdConfig"],a:[2],e:"<code>@NScriptType</code> tells NetSuite what kind of script this is.",w:["@NApiVersion sets the SuiteScript version, not the type.","@NModuleScope controls who can load the module.","Correct.","@NAmdConfig points to an AMD config file."]},
+{s:"SuiteScript 2.1",q:"What <code>@NApiVersion</code> value selects SuiteScript 2.1?",o:["2.0","2.x","2.1","2"],a:[2],e:"Use <code>2.1</code> to opt into ES2019+ language features.",w:["2.0 pins to the older SuiteScript 2.0 runtime.","2.x floats to the latest 2.x — not an explicit 2.1 opt-in.","Correct.","'2' isn't a recognized @NApiVersion value."]},
+{s:"SuiteScript 2.1",q:"On a select field, how do <code>setValue</code> and <code>setText</code> differ?",o:["Identical","setValue = internal id, setText = display text","setText = internal id","setValue only works client-side"],a:[1],e:"setValue takes the internal id; setText takes the visible label.",w:["They behave differently on list/record fields.","Correct.","Reversed — setText uses the display text.","False — setValue works on both client and server."]},
+{s:"SuiteScript 2.1",q:"Which record mode requires <code>selectNewLine</code>/<code>commitLine</code> to add sublist lines sequentially?",o:["Standard mode","Dynamic mode","Read-only","Inline"],a:[1],e:"Dynamic mode ({isDynamic:true}) mimics the UI, line by line.",w:["Standard mode is index-based (setSublistValue) — no commitLine.","Correct.","Read-only mode can't edit anything.","'Inline' isn't a record load mode."]},
+{s:"SuiteScript 2.1",q:"Most efficient way to update two body fields <b>without loading</b> the record?",o:["record.load then save","record.submitFields","search.lookupFields","record.copy"],a:[1],e:"submitFields writes a few body fields with no full load.",w:["Loading + saving the whole record is the expensive path you're avoiding.","Correct.","lookupFields reads values — it can't write.","copy duplicates a record, it doesn't update one."]},
+{s:"SuiteScript 2.1",q:"Read a few field values <b>without loading</b> the record?",o:["record.load","record.transform","search.lookupFields","record.save"],a:[2],e:"lookupFields reads; submitFields writes. Both skip record.load.",w:["load pulls the whole record into memory — the cost you're avoiding.","transform creates a new related record.","Correct.","save persists changes; it doesn't read."]},
+{s:"SuiteScript 2.1",q:"<code>search.run().each()</code> processes up to how many results?",o:["1,000","4,000","10,000","Unlimited"],a:[1],e:"Cap is 4,000 — use runPaged()/getRange() beyond that.",w:["1,000 is a governance ceiling, not the each() result cap.","Correct.","10,000 is a script governance limit, not the result cap.","Not unlimited — page beyond 4,000 with runPaged()."]},
+{s:"SuiteScript 2.1",q:"Which module checks whether an account feature is enabled?",o:["N/config","N/runtime","N/record","N/format"],a:[1],e:"runtime.isFeatureInEffect() plus script/session/user info.",w:["N/config reads company/accounting preferences, not feature flags.","Correct.","N/record is CRUD on records.","N/format formats/parses values."]},
+{s:"SuiteScript 2.1",q:"Which module redirects a user to a record or Suitelet from a server script?",o:["N/url","N/redirect","N/http","N/task"],a:[1],e:"N/redirect: toRecord, toSuitelet, toTaskLink.",w:["N/url builds/resolves URLs — it doesn't redirect the browser.","Correct.","N/http makes outbound HTTP calls.","N/task schedules asynchronous jobs."]},
+{s:"SuiteScript 2.1",q:"Best client entry point to reject an invalid value for a single field?",o:["pageInit","saveRecord","validateField","lineInit"],a:[2],e:"validateField returns false to reject the entry.",w:["pageInit runs once when the form loads.","saveRecord validates the whole record at save time.","Correct — returns false to block the field value.","lineInit initializes a sublist line."]},
+{s:"SuiteScript 2.1",q:"Which User Event entry point adds buttons/fields to the form as it loads?",o:["beforeLoad","beforeSubmit","afterSubmit","pageInit"],a:[0],e:"beforeLoad has the form object to modify UI.",w:["Correct.","beforeSubmit runs pre-write with no form to modify.","afterSubmit runs after the write — the UI is already rendered.","pageInit is a Client-script entry point, not a User Event one."]},
+{s:"SuiteScript 2.1",q:"Validation that must <b>block the save</b> on the server belongs in which UE entry point?",o:["beforeLoad","beforeSubmit","afterSubmit","fieldChanged"],a:[1],e:"beforeSubmit is the last server gate before the write; throw to block.",w:["beforeLoad runs at load time, before the user submits.","Correct — throw an error here to stop the save.","afterSubmit runs after the record is already committed — too late.","fieldChanged is a Client entry point."]},
+{s:"SuiteScript 2.1",q:"Which <code>UserEventType</code> indicates a brand-new record being created?",o:["EDIT","XEDIT","CREATE","COPY"],a:[2],e:"context.type === UserEventType.CREATE.",w:["EDIT is an existing record being changed.","XEDIT is an inline (quick) edit.","Correct.","COPY is duplicating an existing record."]},
+{s:"SuiteScript 2.1",q:"Which N/task type submits a Map/Reduce script to run?",o:["ScheduledScriptTask","MapReduceScriptTask","SearchTask","CsvImportTask"],a:[1],e:"task.create({taskType: task.TaskType.MAP_REDUCE}).",w:["ScheduledScriptTask launches a Scheduled script.","Correct.","SearchTask runs an asynchronous search / export.","CsvImportTask runs a CSV import."]},
+{s:"SuiteScript 2.1",q:"Which module sends transactional email with attachments?",o:["N/http","N/email","N/sftp","N/render"],a:[1],e:"email.send() with an attachments array.",w:["N/http makes outbound web calls, not email.","Correct.","N/sftp transfers files to/from SFTP servers.","N/render generates PDFs/HTML from templates."]},
+{s:"SuiteScript 2.1",q:"Which module/method turns a Sales Order into an Invoice?",o:["record.copy","record.transform","record.create","record.load"],a:[1],e:"record.transform maps one type to a related one.",w:["copy duplicates a record of the same type.","Correct.","create makes a new blank record.","load opens an existing record."]},
+{s:"SuiteScript 2.1",q:"Which method runs a SuiteQL statement?",o:["search.create","query.runSuiteQL","record.load","search.lookupFields"],a:[1],e:"query.runSuiteQL() executes raw SuiteQL.",w:["search.create builds a saved-search-style query object, not SuiteQL.","Correct.","record.load is CRUD, not querying.","lookupFields reads specific fields from one record."]},
+{s:"SuiteScript 2.1",q:"Which two HTTP-capable modules can call an external endpoint? (Choose 2)",o:["N/http","N/https","N/url","N/redirect"],a:[0,1],e:"N/http and N/https make outbound calls; use https for TLS.",w:["Correct.","Correct — use for secure (TLS) calls.","N/url only builds/resolves URLs.","N/redirect redirects the user's browser."]},
+{s:"SuiteScript 2.1",q:"Which module formats/parses values for a specific locale?",o:["N/currency","N/format/i18n","N/translation","N/config"],a:[1],e:"N/format/i18n handles locale-aware number/date formatting.",w:["N/currency does currency exchange operations.","Correct.","N/translation retrieves translated strings.","N/config reads preferences."]},
+{s:"SuiteScript 2.1",q:"In a Client script, how do you access the record the user is editing?",o:["record.load","N/currentRecord (from context)","search.lookupFields","record.copy"],a:[1],e:"currentRecord is passed in context — no explicit load.",w:["load re-fetches a record you already have in context.","Correct.","lookupFields reads other records, not the current one.","copy duplicates a record."]},
+
+{s:"SuiteFlow",q:"Which action runs custom logic beyond the standard action set?",o:["Set Field Value","Custom action (Workflow Action Script)","Go To Record","Confirm"],a:[1],e:"A Workflow Action Script backs a custom action.",w:["Set Field Value is a standard built-in action.","Correct.","Go To Record navigates; it's not custom logic.","Confirm shows a dialog — a standard action."]},
+{s:"SuiteFlow",q:"Entry point of a Workflow Action Script?",o:["onRequest","onAction","execute","each"],a:[1],e:"Workflow Action Scripts run through onAction(context).",w:["onRequest is Suitelet.","Correct.","execute is Scheduled.","each is Mass Update."]},
+{s:"SuiteFlow",q:"Which action prevents users from editing a record during approval?",o:["Lock Record","Set Field Display","Return User Error","Confirm"],a:[0],e:"Lock Record makes the record read-only in that state.",w:["Correct.","Set Field Display hides/shows one field, not the record.","Return User Error blocks a save with a message — it doesn't lock.","Confirm shows a dialog."]},
+{s:"SuiteFlow",q:"A value that must persist across <b>all</b> states is stored in a…?",o:["State field","Workflow field","Transition","Custom column field"],a:[1],e:"Workflow fields live for the whole instance; state fields are per-state.",w:["A State field only exists within one state.","Correct.","A Transition is an arrow between states, not storage.","A custom column field is a sublist column on a record."]},
+{s:"SuiteFlow",q:"Which trigger runs on the <b>server</b>, before the record is written to the DB?",o:["Before Field Edit","Before User Edit","Before Record Submit","After Sourcing"],a:[2],e:"Before Record Submit is server-side, pre-commit.",w:["Before Field Edit is a client trigger.","Before User Edit is a client trigger.","Correct.","After Sourcing is a client trigger."]},
+{s:"SuiteFlow",q:"Which action returns a blocking error and stops the save?",o:["Show Message","Return User Error","Send Email","Confirm"],a:[1],e:"Return User Error halts the save with a message.",w:["Show Message is informational and non-blocking.","Correct.","Send Email sends mail; it doesn't block.","Confirm prompts but is a client dialog, not a save-blocker."]},
+{s:"SuiteFlow",q:"To present a custom button the user clicks to move the workflow forward, use…?",o:["Add Button","Go To Page","Set Field Mandatory","Transform Record"],a:[0],e:"Add Button surfaces a workflow button a transition reacts to.",w:["Correct.","Go To Page navigates to a URL/page.","Set Field Mandatory makes a field required.","Transform Record creates a related record."]},
+{s:"SuiteFlow",q:"Two valid ways to initiate a workflow? (Choose 2)",o:["Event Based","Scheduled","RESTlet","CSV-only"],a:[0,1],e:"Workflows initiate on record events or on a schedule.",w:["Correct — triggers on record events.","Correct — runs on a defined schedule.","RESTlet is a script type, not a workflow initiation mode.","CSV is an execution context, not an initiation type."]},
+{s:"SuiteFlow",q:"Where do you investigate why a workflow action fired (or didn't)?",o:["Script Deployment log","Workflow Execution Log","Login Audit Trail","SuiteApp Marketplace"],a:[1],e:"The Workflow Execution Log traces each action/transition.",w:["The Script Deployment log is for SuiteScript, not workflows.","Correct.","The Login Audit Trail tracks user logins.","The Marketplace lists SuiteApps."]},
+{s:"SuiteFlow",q:"Which trigger's actions run <b>first</b> when a record enters a new state?",o:["Exit","Entry","After Record Submit","Scheduled"],a:[1],e:"Entry actions fire on arriving in a state.",w:["Exit runs when leaving a state.","Correct.","After Record Submit is a record trigger, post-write.","Scheduled runs on a defined schedule."]},
+
+{s:"SuiteBuilder",q:"Which <code>N/render</code> approach injects saved-search results into a template?",o:["render.transaction","render.create() + addSearchResults","render.bom","render.statement"],a:[1],e:"render.create() lets you addRecord/addSearchResults then render.",w:["render.transaction renders a single transaction.","Correct.","render.bom renders a bill of materials.","render.statement renders a customer statement."]},
+{s:"SuiteBuilder",q:"FreeMarker conditional syntax?",o:["{{#if}}","<#if condition>…</#if>","[if]…[/if]","<%if%>"],a:[1],e:"FreeMarker uses <#if>…</#if> and <#list>…</#list>.",w:["{{#if}} is Handlebars/Mustache.","Correct.","[if] isn't FreeMarker.","<%if%> is JSP/ASP scriptlet syntax."]},
+{s:"SuiteBuilder",q:"Which method produces a PDF file object from a rendered template?",o:["renderAsString","renderAsPdf","toJSON","save"],a:[1],e:"renderAsPdf() returns the PDF file.",w:["renderAsString returns HTML/text, not a PDF.","Correct.","toJSON serializes an object.","save persists a record."]},
+{s:"SuiteBuilder",q:"Which engine converts the HTML into the final PDF?",o:["FreeMarker","BFO","BeanShell","Velocity"],a:[1],e:"FreeMarker templates the data; BFO renders it to PDF.",w:["FreeMarker templates the markup — it doesn't rasterize to PDF.","Correct.","BeanShell is a Java scripting library, unrelated.","Velocity is a different template engine, not used here."]},
+{s:"SuiteBuilder",q:"Which custom object classifies transactions <b>and</b> their GL impact lines across many record types?",o:["Custom field","Custom list","Custom segment","Custom record"],a:[2],e:"Custom segments are GL-aware, cross-record, with built-in filtering.",w:["A custom field stores one value; no GL-line classification.","A custom list is just a set of values.","Correct.","A custom record is a standalone record type."]},
+{s:"SuiteBuilder",q:"A List/Record field should show only values tied to the selected customer. Configure via…?",o:["Store Value","Sourcing & Filtering","Show in List","Validation & Defaulting"],a:[1],e:"Sourcing & Filtering filters a field's options using another field.",w:["Store Value controls whether the value is saved.","Correct.","Show in List controls list-view display.","Validation & Defaulting sets defaults and validation rules."]},
+{s:"SuiteBuilder",q:"Unchecking <b>Store Value</b> on a custom field means…?",o:["It's required","The value isn't persisted; it displays/sources at runtime","It can't be scripted","It becomes a GL account"],a:[1],e:"Without Store Value the field isn't saved on the record.",w:["Required is a separate 'Mandatory' setting.","Correct.","It can still be read/scripted at runtime.","It has nothing to do with GL accounts."]},
+{s:"SuiteBuilder",q:"Which printing approach supports FreeMarker + <code>N/render</code> scripting?",o:["Basic printing","Advanced PDF/HTML Templates","Word merge","Email-only"],a:[1],e:"Advanced PDF/HTML Templates are the scriptable, FreeMarker path.",w:["Basic printing isn't FreeMarker-based or scriptable.","Correct.","Word merge is an external Office workflow.","'Email-only' isn't a template type."]},
+
+{s:"SDF",q:"Which file specifies <b>which</b> objects and files are deployed?",o:["manifest.xml","deploy.xml","locking.xml","suitecloud.config.js"],a:[1],e:"deploy.xml lists the objects/files to push.",w:["manifest.xml declares project type and dependencies.","Correct.","locking.xml is a SuiteApp installation preference.","suitecloud.config.js configures the CLI itself."]},
+{s:"SDF",q:"Which file declares the project type and framework version?",o:["deploy.xml","manifest.xml","hiding.xml","overwrite.xml"],a:[1],e:"manifest.xml holds projecttype, frameworkversion, dependencies.",w:["deploy.xml lists what to deploy, not the project type.","Correct.","hiding.xml is a SuiteApp installation preference.","overwrite.xml is a SuiteApp installation preference."]},
+{s:"SDF",q:"Which project type can be <b>packaged and distributed</b> to multiple accounts?",o:["Account Customization","SuiteApp","Bundle-only","RESTlet project"],a:[1],e:"SuiteApp projects produce a distributable app.",w:["Account Customization deploys to one specific account.","Correct.","'Bundle-only' isn't an SDF project type.","'RESTlet project' isn't a project type."]},
+{s:"SDF",q:"Which SuiteCloud CLI (Node.js) command authenticates an account?",o:["project:deploy","account:setup","object:import","project:validate"],a:[1],e:"account:setup (manageauth) authorizes the account.",w:["project:deploy pushes the project — after auth.","Correct.","object:import pulls objects into the project.","project:validate checks the project for errors."]},
+{s:"SDF",q:"Which command checks the project for errors <b>before</b> deploying?",o:["project:validate","project:deploy","file:import","object:list"],a:[0],e:"Validate first, then deploy.",w:["Correct.","project:deploy actually pushes — validate first.","file:import pulls files from the account.","object:list lists account objects."]},
+{s:"SDF",q:"Which command pulls existing account objects into your project?",o:["object:import","project:package","project:create","file:upload"],a:[0],e:"object:import brings account objects into the project as XML.",w:["Correct.","project:package bundles a SuiteApp.","project:create scaffolds a new project.","'file:upload' isn't the object-import command."]},
+{s:"SDF",q:"<code>locking.xml</code>, <code>hiding.xml</code>, <code>overwrite.xml</code> live in which folder — and which project type?",o:["Objects / any","InstallationPreferences / SuiteApp only","FileCabinet / ACP only","root / any"],a:[1],e:"InstallationPreferences, and only in SuiteApp projects.",w:["The Objects folder holds object XML, not install prefs.","Correct.","FileCabinet holds file-cabinet files, and these aren't ACP-only.","The root holds manifest.xml/deploy.xml, not these."]},
+{s:"SDF",q:"Which SuiteApp-only CLI command bundles the project for distribution?",o:["project:deploy","project:package","account:setup","object:import"],a:[1],e:"project:package builds the distributable SuiteApp.",w:["project:deploy pushes to a single account.","Correct.","account:setup authenticates.","object:import pulls objects in."]},
+
+{s:"Performance & Security",q:"Governance unit limit for a <b>Scheduled</b> script?",o:["1,000","5,000","10,000","Unlimited"],a:[2],e:"Scheduled and Map/Reduce get 10,000 units.",w:["1,000 is the Client/UE/Suitelet limit.","5,000 is the RESTlet limit.","Correct.","Governance is never unlimited."]},
+{s:"Performance & Security",q:"Governance limit for a <b>User Event / Suitelet / Client</b> script?",o:["1,000","5,000","10,000","100"],a:[0],e:"Client, User Event, Suitelet, Portlet = 1,000.",w:["Correct.","5,000 is the RESTlet limit.","10,000 is the Scheduled/Map-Reduce limit.","100 isn't a real governance ceiling."]},
+{s:"Performance & Security",q:"Governance limit for a <b>RESTlet</b>?",o:["1,000","5,000","10,000","4,000"],a:[1],e:"RESTlets get 5,000 units.",w:["1,000 is the UE/Suitelet/Client limit.","Correct.","10,000 is Scheduled/Map-Reduce.","4,000 is the search.each result cap, not governance."]},
+{s:"Performance & Security",q:"A key performance benefit of Map/Reduce for large data sets?",o:["Runs only client-side","Yields governance between stages and can process in parallel","Never logs","Ignores usage units"],a:[1],e:"It yields between stages and parallelizes work.",w:["Map/Reduce runs server-side, not client-side.","Correct.","It can and does log.","It still consumes units — it yields rather than ignoring them."]},
+{s:"Performance & Security",q:"Which module caches reusable data across executions to cut redundant queries?",o:["N/task","N/cache","N/format","N/record"],a:[1],e:"N/cache stores computed/fetched data for reuse.",w:["N/task schedules asynchronous jobs.","Correct.","N/format formats/parses values.","N/record is CRUD on records."]},
+{s:"Performance & Security",q:"What governs how many RESTlet requests run in parallel?",o:["Script status","Integration concurrency / SuiteCloud Processors (SuiteCloud Plus)","Store Value","Audience"],a:[1],e:"Concurrency limits + processor queues (SuiteCloud Plus).",w:["Status is the deployment's on/off state.","Correct.","Store Value is a custom-field setting.","Audience targets which roles a deployment applies to."]},
+{s:"Performance & Security",q:"Which Script Deployment setting controls <b>which roles</b> the script runs for?",o:["Execute as Role","Audience","Status","Log Level"],a:[1],e:"Audience defines who/what the deployment applies to.",w:["Execute as Role sets the permission context at runtime.","Correct.","Status is the deploy state (Testing/Released…).","Log Level controls logging verbosity."]},
+{s:"Performance & Security",q:"Which setting runs the deployment under a <b>specific role's permissions</b>?",o:["Audience","Execute as Role","Available Without Login","Deployment ID"],a:[1],e:"Execute as Role sets the permission context at runtime.",w:["Audience targets who can trigger it, not its permissions.","Correct.","Available Without Login enables external access.","Deployment ID is just an identifier."]},
+{s:"Performance & Security",q:"Where should integration secrets be stored so they aren't hardcoded or logged?",o:["A plain custom text field","N/credentials (Credential field)","Script parameters as text","The execution log"],a:[1],e:"N/credentials + a Credential field keeps secrets out of scripts/logs.",w:["A plain text field is readable and can leak into logs/searches.","Correct.","Text script params are visible in the UI and code.","The execution log is exactly where secrets must never appear."]},
+{s:"Performance & Security",q:"Best <b>first</b> step to speed up a record saving slowly due to many User Event scripts?",o:["Raise governance","Consolidate your own UE scripts and filter by context/event type","Move scripts to the top of the list","Run as Administrator"],a:[1],e:"Fewer executions = faster saves; run scripts only when needed.",w:["Governance limits aren't the bottleneck — execution count is.","Correct.","Reordering scripts doesn't reduce how many run.","Running as Admin changes permissions, not speed."]},
+
+{s:"SuiteScript 2.1",q:"⭐ At what interval does NetSuite purge script execution logs?",o:["30 days","60 days","90 days","120 days"],a:[0],e:"Execution logs are retained 30 days, then purged.",w:["Correct.","Retention is 30 days, not 60.","Retention is 30 days, not 90.","Retention is 30 days, not 120."]},
+{s:"SuiteScript 2.1",q:"⭐ Which module does NOT need to be explicitly loaded in an entry-point Client script?",o:["N/record","N/search","N/runtime","N/currentRecord"],a:[3],e:"The current record is passed via context.",w:["N/record must be declared in define/require.","N/search must be declared to use it.","N/runtime must be declared to use it.","Correct — currentRecord arrives in context."]},
+{s:"SuiteScript 2.1",q:"⭐ Most efficient way to retrieve a few body-field values, governance in mind?",o:["search.load","record.load","search.lookupFields","record.submitFields"],a:[2],e:"lookupFields is the cheap read path.",w:["search.load loads a saved-search definition.","record.load loads the entire record — heavier.","Correct.","submitFields writes fields; it doesn't read."]},
+{s:"SuiteScript 2.1",q:"⭐ Which HTTP method is NOT supported by N/http and N/https?",o:["GET","PUT","PATCH","DELETE"],a:[2],e:"PATCH is unsupported.",w:["GET is supported.","PUT is supported.","Correct — PATCH is not available.","DELETE is supported."]},
+{s:"SuiteScript 2.1",q:"⭐ A Map/Reduce script can be interrupted mid-run. How do you handle it? (Choose 2)",o:["try/catch","Set retryCount","Configure buffer size","Set exitOnError","Submit All Stages at once"],a:[1,3],e:"retryCount + exitOnError control interruption behavior.",w:["try/catch handles thrown errors, not server-side restarts.","Correct.","Buffer size tunes concurrency/throughput, not recovery.","Correct.","There's no 'Submit All Stages' interruption control."]},
+{s:"SuiteScript 2.1",q:"⭐ Client + server validation of the same change — best entry-point/type combo?",o:["afterSubmit (client) + saveRecord (UE)","validateField + validateInsert","sublistChanged (Client) + beforeSubmit (UE)","beforeLoad (Client) + pageInit (UE)"],a:[2],e:"Client sublistChanged + UE beforeSubmit are correctly paired.",w:["afterSubmit is a UE entry point and saveRecord is a Client one — swapped.","validateInsert isn't a User Event entry point.","Correct.","pageInit is Client and beforeLoad is UE — swapped."]},
+{s:"SuiteFlow",q:"⭐ A Saved Search doesn't appear in the workflow filter dropdown. Why? (Choose 2)",o:["Execute-as-Admin unchecked","Not built on the same record type","No Available Filters set","No filter under Criteria subtab","Public unchecked"],a:[1,3],e:"Wrong record type and missing Criteria hide it from the dropdown.",w:["Execute-as-Admin doesn't govern dropdown visibility.","Correct.","Available Filters affect the search's own filter UI, not this dropdown.","Correct.","Public/sharing doesn't drive this filter dropdown."]},
+{s:"SuiteFlow",q:"⭐ Which two statements about the Confirm action are true? (Choose 2)",o:["Only supports Client Triggers","Executes on any standard button","Executes on custom workflow buttons","Executes in View mode","Executes only in Edit mode on Save"],a:[0,4],e:"Confirm is client-only and fires on Save in Edit mode.",w:["Correct.","It doesn't fire on arbitrary standard buttons.","It fires at Save, not on custom buttons.","It doesn't run in View mode.","Correct."]},
+{s:"SuiteFlow",q:"⭐ Two transitions from one state on the same button, no conditions. On click?",o:["Goes to State 2 then State 3","Stays in the state","Transitions to the state listed first on the Transition subtab","Lets the user pick"],a:[2],e:"First-listed transition wins.",w:["A record can't move to two states at once.","It does transition — the button fires it.","Correct.","Without distinguishing conditions/buttons the user gets no choice."]},
+{s:"SuiteFlow",q:"⭐ Which trigger's actions execute first as the record transitions to another state?",o:["Before Record Load","Before User Edit","Entry","Scheduled"],a:[2],e:"Entry runs on arriving in the new state.",w:["Before Record Load fires on record load, not on transition.","Before User Edit is a client edit trigger.","Correct.","Scheduled runs on a schedule, not on transition."]},
+{s:"SuiteFlow",q:"⭐ Which two triggers support the Confirm workflow action? (Choose 2)",o:["Before Field Edit","Before Record Load","Before Record Submit","Before User Submit"],a:[0,3],e:"Both are client-side; Confirm can't run server-side.",w:["Correct.","Before Record Load is a server-side trigger.","Before Record Submit is server-side.","Correct."]},
+{s:"SuiteFlow",q:"A workflow action must run only on the server, after the DB write. Which trigger?",o:["Before User Edit","Before Field Edit","After Record Submit","Before User Submit"],a:[2],e:"After Record Submit is server-side, post-commit.",w:["Before User Edit is client-side.","Before Field Edit is client-side.","Correct.","Before User Submit is client-side."]},
+{s:"SuiteBuilder",q:"⭐ Which tag adds a page break in an Advanced PDF template?",o:["<br/>","<pbr/>","<page-break/>","<nxt-pge/>"],a:[1],e:"<pbr/> forces a page break.",w:["<br/> is a line break, not a page break.","Correct.","<page-break/> isn't a valid tag.","<nxt-pge/> isn't a valid tag."]},
+{s:"SuiteBuilder",q:"⭐ Convert the current day to a string in a custom field. Which formula?",o:["TO_DATE({trandate},'DAY')","TO_CHAR({trandate},'DAY')","TO_STRING({today},'DAY')","TRUNC({today},'DD')"],a:[1],e:"TO_CHAR with 'DAY' returns the text day-name.",w:["TO_DATE returns a date, not a string.","Correct.","TO_STRING isn't the SQL function here (and {today} is wrong).","TRUNC truncates a date; it doesn't produce the day name."]},
+{s:"SuiteBuilder",q:"Which SuiteScript module renders a transaction record to PDF?",o:["N/ui","N/render","N/format","N/file"],a:[1],e:"render.transaction() drives FreeMarker/BFO.",w:["N/ui builds server-side widgets/forms.","Correct.","N/format formats values.","N/file manages File Cabinet files."]},
+{s:"SuiteBuilder",q:"In a FreeMarker template, which syntax iterates the line items?",o:["<#for item in items>","<#each record.item>","<#list record.item as item>…</#list>","{{#items}}"],a:[2],e:"FreeMarker loops with <#list … as …>.",w:["<#for> isn't FreeMarker syntax.","<#each> isn't FreeMarker syntax.","Correct.","{{#items}} is Handlebars/Mustache."]},
+{s:"SuiteBuilder",q:"A custom field has Store Value unchecked. Effect?",o:["The field is required","The value isn't persisted; it displays/sources at runtime","It can't be scripted","It becomes a GL field"],a:[1],e:"No Store Value → not saved on the record.",w:["Required is the separate 'Mandatory' setting.","Correct.","It's still scriptable at runtime.","It doesn't affect GL."]},
+{s:"SuiteBuilder",q:"Classify transactions + GL lines across many record types, per-subsidiary filtering built in. Which?",o:["Custom field","Custom list","Custom segment","Custom record"],a:[2],e:"Custom segment — GL-aware, cross-record.",w:["A field holds one value, no GL-line classification.","A list is just a set of values.","Correct.","A record is a standalone record type."]},
+{s:"SDF",q:"⭐ ACP locking.xml deployed with no errors, but the list stays unlocked. Why?",o:["defaultAction should be LOCK","Locking isn't supported in Account Customization — SuiteApp only","Object tag syntax is wrong","SDF can't lock custom lists"],a:[1],e:"Locking/hiding/overwrite are SuiteApp-only install preferences.",w:["Changing defaultAction won't enable locking in an ACP.","Correct.","The syntax shown is fine — the project type is the issue.","SDF can lock lists — in a SuiteApp project."]},
+{s:"SDF",q:"⭐ Which XML files go in InstallationPreferences of an SDF SuiteApp project? (Choose 3)",o:["locking.xml","hiding.xml","manifest.xml","deploy.xml","overwrite.xml"],a:[0,1,4],e:"locking, hiding, overwrite — the three install preferences.",w:["Correct.","Correct.","manifest.xml lives at the project root.","deploy.xml lives at the project root.","Correct."]},
+{s:"SDF",q:"Which project type produces a distributable app installable into multiple accounts?",o:["Account Customization Project","SuiteApp Project","Bundle-only project","RESTlet project"],a:[1],e:"SuiteApp = distributable.",w:["ACP targets a single account.","Correct.","'Bundle-only' isn't an SDF project type.","'RESTlet project' isn't a project type."]},
+{s:"SDF",q:"Which file declares the project type, framework version, and dependencies?",o:["deploy.xml","manifest.xml","locking.xml","suitecloud.config.js"],a:[1],e:"manifest.xml.",w:["deploy.xml lists deploy targets.","Correct.","locking.xml is a SuiteApp install preference.","suitecloud.config.js configures the CLI."]},
+{s:"SDF",q:"Correct SuiteCloud CLI order to safely push customizations?",o:["deploy → validate → setup","account:setup → project:validate → project:deploy","project:deploy → object:import","validate → import → setup"],a:[1],e:"Authenticate, validate, then deploy.",w:["Order reversed — you can't deploy before auth/validate.","Correct.","Skips authentication and validation.","Missing the deploy step and out of order."]},
+{s:"SDF",q:"Bring existing account customizations into your SDF project as objects. Which command?",o:["project:deploy","object:import","project:validate","file:upload"],a:[1],e:"object:import.",w:["project:deploy pushes out, not in.","Correct.","project:validate only checks.","'file:upload' isn't the object-import command."]},
+{s:"Performance & Security",q:"⭐ Which N/ module offloads a long-running UE process into a scheduled script?",o:["N/cache","N/task","N/render","N/redirect"],a:[1],e:"N/task queues a scheduled/Map-Reduce job.",w:["N/cache caches data; it doesn't schedule work.","Correct.","N/render generates PDFs.","N/redirect navigates the browser."]},
+{s:"Performance & Security",q:"⭐ 8 UE scripts (5 yours); saves take ~1 min. Lowest-impact fix?",o:["Move your 5 to the top","Consolidate the 5 into 1","Undeploy 2 of yours","Undeploy the other 3"],a:[1],e:"One script, same logic, fewer executions per save.",w:["Reordering doesn't reduce how many scripts run.","Correct.","Undeploying yours drops functionality you need.","The other 3 aren't yours to remove and they'd lose function."]},
+{s:"Performance & Security",q:"⭐ Which SuiteScript module encrypts and deciphers values?",o:["N/https","N/auth","N/crypto","N/decode"],a:[2],e:"N/crypto handles encryption/decryption.",w:["N/https makes secure web calls.","N/auth isn't the encryption module.","Correct.","N/decode isn't a real module (encoding is N/encode)."]},
+{s:"Performance & Security",q:"You need a few values many executions reuse, without re-querying. Which module?",o:["N/task","N/cache","N/record","N/format"],a:[1],e:"N/cache.",w:["N/task schedules jobs.","Correct.","N/record is CRUD.","N/format formats values."]},
+{s:"Performance & Security",q:"Best way to keep a script from running when it isn't needed?",o:["Increase max attempts","Filter by execution context and event type","Raise the buffer size","Run as Administrator"],a:[1],e:"Context/event filtering avoids needless executions.",w:["Max attempts is a retry setting, not a run gate.","Correct.","Buffer size tunes Map/Reduce concurrency.","Running as Admin changes permissions, not when it runs."]},
+{s:"Performance & Security",q:"A Suitelet must be reachable by external users who aren't logged in. Which setting?",o:["Execute as Role = Administrator","Available Without Login","Audience = All Roles","Status = Testing"],a:[1],e:"Available Without Login — then scope permissions tightly.",w:["Execute as Role sets permissions, not anonymous access.","Correct.","Audience targets internal roles, not logged-out users.","Testing is a deploy status, unrelated to external access."]}
+];
+
+var SECS=["SuiteScript 2.1","SuiteFlow","SuiteBuilder","SDF","Performance & Security"];
+var LETTERS=["A","B","C","D","E"];
+var el=function(id){return document.getElementById(id)};
+var start=el("start"),quiz=el("quiz"),results=el("results");
+var actQuiz=el("actQuiz"),actDone=el("actDone"),track=el("track");
+var state=null;
+
+function counts(){var c={};Q.forEach(function(q){c[q.s]=(c[q.s]||0)+1});return c}
+function buildStart(){
+  var c=counts(),wrap=el("sections"),html="";
+  html+=secRow("All","ALL",Q.length,"Full exam-weighted run");
+  SECS.forEach(function(s){html+=secRow(s,s,c[s]||0,secBlurb(s))});
+  wrap.innerHTML=html;
+  Array.prototype.forEach.call(wrap.querySelectorAll(".sec"),function(b){
+    b.addEventListener("click",function(){begin(b.getAttribute("data-sec"))})});
+}
+function secRow(title,key,n,d){
+  return '<button class="sec" data-sec="'+key+'"><span class="n">'+n+' Q</span>'+
+    '<span><span class="t">'+title+'</span><span class="d">'+d+'</span></span>'+
+    '<span class="go">→</span></button>';
+}
+function secBlurb(s){return {
+  "SuiteScript 2.1":"Script types, entry points, records, Map/Reduce",
+  "SuiteFlow":"States, actions, transitions, triggers",
+  "SuiteBuilder":"Advanced PDF/FreeMarker, custom fields & segments",
+  "SDF":"ACP vs SuiteApp, manifest/deploy, CLI",
+  "Performance & Security":"Governance, N/cache, roles & credentials"
+}[s]||""}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+
+function begin(key){
+  var pool=Q.map(function(q,i){return i}).filter(function(i){return key==="ALL"||Q[i].s===key});
+  if(el("shuffle").checked)shuffle(pool);
+  state={order:pool,idx:0,correct:0,sel:[],locked:false,misses:[]};
+  start.classList.add("hidden");results.classList.add("hidden");
+  quiz.classList.remove("hidden");actQuiz.classList.remove("hidden");
+  actDone.classList.add("hidden");track.style.display="block";render();
+}
+function cur(){return Q[state.order[state.idx]]}
+
+function render(){
+  var q=cur();state.sel=[];state.locked=false;
+  el("qtag").textContent=q.s;el("qtext").innerHTML=q.q;
+  var multi=q.a.length>1;
+  el("hint").textContent=multi?("Select "+q.a.length+" — then Check."):"";
+  el("hint").style.display=multi?"block":"none";
+  el("explain").classList.add("hidden");
+  var ch=el("choices");ch.innerHTML="";
+  q.o.forEach(function(opt,i){
+    var b=document.createElement("button");b.className="choice";b.setAttribute("data-i",i);
+    b.innerHTML='<span class="key">'+LETTERS[i]+'</span><span class="body"><span class="opt">'+opt+
+      '</span><span class="why"></span></span>';
+    b.addEventListener("click",function(){pick(i,multi)});
+    ch.appendChild(b);
+  });
+  el("nextBtn").textContent="Check";updateStat();
+}
+function pick(i,multi){
+  if(state.locked)return;
+  if(multi){
+    var p=state.sel.indexOf(i);if(p>=0)state.sel.splice(p,1);else state.sel.push(i);
+    Array.prototype.forEach.call(el("choices").children,function(b){
+      b.classList.toggle("sel",state.sel.indexOf(+b.getAttribute("data-i"))>=0)});
+  }else{state.sel=[i];reveal()}
+}
+function eq(a,b){if(a.length!==b.length)return false;var x=a.slice().sort(),y=b.slice().sort();
+  for(var i=0;i<x.length;i++)if(x[i]!==y[i])return false;return true}
+
+function reveal(){
+  var q=cur();state.locked=true;
+  var ok=eq(state.sel,q.a);
+  if(ok)state.correct++;else state.misses.push(state.order[state.idx]);
+  Array.prototype.forEach.call(el("choices").children,function(b){
+    var idx=+b.getAttribute("data-i");b.disabled=true;b.classList.remove("sel");b.classList.add("revealed");
+    var isAns=q.a.indexOf(idx)>=0,isSel=state.sel.indexOf(idx)>=0;
+    if(isAns)b.classList.add("correct");
+    if(isSel&&!isAns)b.classList.add("wrong");
+    // per-option why
+    var why=b.querySelector(".why"),label=isAns?"Why right":"Why not";
+    var txt=(q.w&&q.w[idx])?q.w[idx]:"";
+    if(txt)why.innerHTML='<b>'+label+'</b> · '+txt;
+    // marks
+    if(isSel){var m=document.createElement("span");m.className="mark "+(isAns?"g":"b");
+      m.textContent=isAns?"✓":"✗";b.querySelector(".key").appendChild(m)}
+  });
+  var ex=el("explain");
+  ex.innerHTML="<b>"+(ok?"Correct.":"Answer: "+q.a.map(function(i){return LETTERS[i]}).join(", ")+".")+"</b> "+q.e;
+  ex.classList.remove("hidden");
+  el("nextBtn").textContent=(state.idx+1>=state.order.length)?"See results":"Next →";
+  updateStat();
+}
+
+el("nextBtn").addEventListener("click",function(){
+  var q=cur(),multi=q.a.length>1;
+  if(!state.locked){if(multi){if(!state.sel.length)return;reveal()}return}
+  if(state.idx+1>=state.order.length){finish();return}
+  state.idx++;render();
+});
+el("quitBtn").addEventListener("click",toStart);
+el("restartBtn").addEventListener("click",toStart);
+
+function toStart(){
+  quiz.classList.add("hidden");results.classList.add("hidden");
+  actQuiz.classList.add("hidden");actDone.classList.add("hidden");
+  track.style.display="none";start.classList.remove("hidden");
+  el("stat").textContent="";el("fill").style.width="0";window.scrollTo(0,0);
+}
+function updateStat(){
+  var n=state.order.length,at=Math.min(state.idx+1,n);
+  el("stat").innerHTML=at+' <span>/ '+n+'</span> · '+state.correct+' <span>right</span>';
+  el("fill").style.width=(state.locked?(state.idx+1):state.idx)/n*100+"%";
+}
+function finish(){
+  quiz.classList.add("hidden");actQuiz.classList.add("hidden");
+  results.classList.remove("hidden");actDone.classList.remove("hidden");
+  el("fill").style.width="100%";window.scrollTo(0,0);
+  var n=state.order.length,pct=Math.round(state.correct/n*100);
+  el("scoreBig").textContent=pct+"%";el("scoreSub").textContent=state.correct+" of "+n+" correct";
+  el("verdict").textContent=pct>=85?"Exam-ready pace. Keep it sharp.":pct>=70?"Close — drill the misses below and re-run.":"Rebuild the weak sections, then come back.";
+  var m=el("misses");m.innerHTML="";
+  if(!state.misses.length){m.innerHTML='<div class="miss"><div class="mq">Clean sweep — no misses. 🔥</div></div>';el("stat").innerHTML=pct+'% <span>final</span>';return}
+  var head=document.createElement("p");head.className="pick";head.textContent="Review your misses ("+state.misses.length+")";m.appendChild(head);
+  state.misses.forEach(function(qi){
+    var q=Q[qi],d=document.createElement("div");d.className="miss";
+    d.innerHTML='<div class="mq">'+q.q+'</div><div class="ma"><b>'+
+      q.a.map(function(i){return LETTERS[i]+". "+q.o[i]}).join(" · ")+'</b><br>'+q.e+'</div>';
+    m.appendChild(d);
+  });
+  el("stat").innerHTML=pct+'% <span>final</span>';
+}
+buildStart();
+})();
+</script>
+</body>
+</html>
